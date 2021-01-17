@@ -256,7 +256,7 @@ h1, h2, h3, h4, h5, h6 {
   display: none;
 }
 
-#wizard .radiogroup label, #wizard .btn {
+#wizard .radiogroup label, #wizard .btn, #wizard .btncur {
   display: inline-block;
   list-style-type: none;
   font: inherit;
@@ -269,7 +269,7 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
 }
 
-#wizard .btn:hover {
+#wizard .btn:hover, #wizard .btncur:hover {
   color: black;
 }
 
