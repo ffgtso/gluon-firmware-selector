@@ -963,6 +963,7 @@ var firmwarewizard = function() {
       for (var i in revisions) {
         var rev = revisions[i];
         var a = document.createElement('a');
+        var verbyrev ={};
         a.href = rev.location;
         a.className = (rev.version==app.currentVersions[rev.branch]?'btncur':'btn');
         a.innerText = rev.branch +
@@ -970,6 +971,8 @@ var firmwarewizard = function() {
                       ' (' +prettyPrintVersion(rev.version)+')';
 
         if (rev.branch in config.branch_descriptions) {
+          verbyrev[rev.branch]++;
+          if(verbyrev[rev.branch] == 1) {
           var li = document.createElement('li');
           var name = document.createElement('span');
           name.innerText = rev.branch;
@@ -990,6 +993,7 @@ var firmwarewizard = function() {
           li.appendChild(br);
           li.appendChild(desc);
           $('#branchdescs').appendChild(li);
+          }
         }
 
         if (config.experimental_branches.indexOf(rev.branch) != -1) {
