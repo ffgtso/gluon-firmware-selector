@@ -193,7 +193,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #wizard #branch-pane .btncur,
 #wizard #type-pane .btncur {
-  background-color: #00e09e;
+  background-color: #ffb400;
 }
 
 #wizard #branch-pane.show-experimental-warning button.dl-experimental {
