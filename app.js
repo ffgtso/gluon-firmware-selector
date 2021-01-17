@@ -971,7 +971,7 @@ var firmwarewizard = function() {
                       ' (' +prettyPrintVersion(rev.version)+')';
 
         if (rev.branch in config.branch_descriptions) {
-          if(typeof verbyrev[rev.branch] !== 'undefined') {
+          if(verbyrev[rev.branch] != rev.branch) {
           var li = document.createElement('li');
           var name = document.createElement('span');
           name.innerText = rev.branch;
