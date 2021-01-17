@@ -972,6 +972,7 @@ var firmwarewizard = function() {
 
         if (rev.branch in config.branch_descriptions) {
           verbyrev[rev.branch]++;
+          console.log("Printing branch", rev.branch, "number", verbyrev[rev.branch]);
           if(verbyrev[rev.branch] == 1) {
           var li = document.createElement('li');
           var name = document.createElement('span');
