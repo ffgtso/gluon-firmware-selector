@@ -191,8 +191,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #009ee0;
 }
 
-#wizard #branch-pane .btncurr,
-#wizard #type-pane .btncurr {
+#wizard #branch-pane .btncur,
+#wizard #type-pane .btncur {
   background-color: #00e09e;
 }
 
