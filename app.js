@@ -964,7 +964,7 @@ var firmwarewizard = function() {
         var rev = revisions[i];
         var a = document.createElement('a');
         a.href = rev.location;
-        a.className = 'btn';
+        a.className = (rev.version==app.currentVersions[rev.branch]?'btncur':'btn');
         a.innerText = rev.branch +
                       (rev.size!==''?' ['+rev.size+']':'') +
                       ' (' +prettyPrintVersion(rev.version)+')';
