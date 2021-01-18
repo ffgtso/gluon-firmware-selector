@@ -972,7 +972,9 @@ var firmwarewizard = function() {
                       ' (' +prettyPrintVersion(rev.version)+')';
 
         if (rev.branch in config.branch_descriptions) {
-          if(!verbyrev.includes(rev.branch)) {
+          if(verbyrev.includes(rev.branch)) {
+            console.log("Branch", rev.branch, "already printed.");
+          } else {
           var li = document.createElement('li');
           var name = document.createElement('span');
           name.innerText = rev.branch;
@@ -994,7 +996,7 @@ var firmwarewizard = function() {
           li.appendChild(desc);
           $('#branchdescs').appendChild(li);
           verbyrev[tmprevisions++]=rev.branch;
-          console.log("Printing branch", rev.branch, "number", tmprevisions);
+          console.log("Noting branch", rev.branch, "as idx", tmprevisions);
          }
         }
 
