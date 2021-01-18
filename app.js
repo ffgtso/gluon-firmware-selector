@@ -995,7 +995,8 @@ var firmwarewizard = function() {
           li.appendChild(br);
           li.appendChild(desc);
           $('#branchdescs').appendChild(li);
-          verbyrev[tmprevisions++]=rev.branch;
+          verbyrev[tmprevisions]=rev.branch;
+          tmprevisions+=1;
           console.log("Noting branch", rev.branch, "as idx", tmprevisions);
          }
         }
