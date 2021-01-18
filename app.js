@@ -972,7 +972,7 @@ var firmwarewizard = function() {
                       ' (' +prettyPrintVersion(rev.version)+')';
 
         if (rev.branch in config.branch_descriptions) {
-          if(!verbyrev.indexOf(rev.branch)) {
+          if(!verbyrev.includes(rev.branch)) {
           var li = document.createElement('li');
           var name = document.createElement('span');
           name.innerText = rev.branch;
