@@ -960,11 +960,11 @@ var firmwarewizard = function() {
         scrollDown();
       };
 
+      var verbyrev = [];
+      var tmprevisions=0;
       for (var i in revisions) {
         var rev = revisions[i];
         var a = document.createElement('a');
-        var verbyrev = [];
-        var tmprevisions=0;
         a.href = rev.location;
         a.className = (rev.version==app.currentVersions[rev.branch]?'btncur':'btn');
         a.innerText = rev.branch +
