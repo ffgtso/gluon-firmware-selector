@@ -964,7 +964,7 @@ var firmwarewizard = function() {
         var rev = revisions[i];
         var a = document.createElement('a');
         var verbyrev = [];
-        var i=0;
+        var tmprevisions=0;
         a.href = rev.location;
         a.className = (rev.version==app.currentVersions[rev.branch]?'btncur':'btn');
         a.innerText = rev.branch +
@@ -993,8 +993,8 @@ var firmwarewizard = function() {
           li.appendChild(br);
           li.appendChild(desc);
           $('#branchdescs').appendChild(li);
-          verbyrev[i++]=rev.branch;
-          console.log("Printing branch", rev.branch, "number", i);
+          verbyrev[tmprevisions++]=rev.branch;
+          console.log("Printing branch", rev.branch, "number", tmprevisions);
          }
         }
 
