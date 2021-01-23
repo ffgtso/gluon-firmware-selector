@@ -1231,6 +1231,7 @@ var firmwarewizard = function() {
       // retrieve the contents of the directory
       loadSite(indexPath, parseSite);
     }
+    document.getElementById("loader").style.display = "none";
   }
 
   return app;
