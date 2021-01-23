@@ -417,7 +417,9 @@ var firmwarewizard = function() {
     }
 
     var strippedFilename = filename;
-    strippedFilename = strippedFilename.replace(config.community_prefix, '-');
+    config.community_prefix.forEach(communityPrefix => {
+      strippedFilename = strippedFilename.replace(communityPrefix, '-');  
+    });    
 
     var version = findVersion(strippedFilename);
     strippedFilename = strippedFilename.replace(version, '');
@@ -450,7 +452,9 @@ var firmwarewizard = function() {
 
     // derive preview file name
     var preview = filename;
-    preview = preview.replace(config.community_prefix, '');
+    config.community_prefix.forEach(communityPrefix => {
+      preview = strippedFilename.replace(communityPrefix, '-');  
+    });
     preview = preview.replace(version, '');
     preview = preview.replace(revision, '');
     preview = preview.replace(region, '');
@@ -1207,15 +1211,16 @@ var firmwarewizard = function() {
             var imageNameSet = false;
             for (let i = 0; i < imageNamesWithLatestVersion.length; i++) {
               const element = imageNamesWithLatestVersion[i];
-              if (element.ImageName == match[1] && element.Revision == revision) {
+              if (element.ImageName == match[1] && element.Revision == revision && element.Branch == branch) {
                 imageNameSet = true;
                 if (element.Version < version) {
                   element.Version = version;
+                  break;
                 }
               }              
             }
             if (!imageNameSet) {
-              imageNamesWithLatestVersion.push({ImageName:match[1], Revision:revision, Version:version, Filename:href});
+              imageNamesWithLatestVersion.push({ImageName:match[1], Revision:revision, Branch:branch, Version:version, Filename:href});
             }
           } else if (config.listMissingImages) {
             console.log("No rule for firmware image:", href);
@@ -1230,6 +1235,8 @@ var firmwarewizard = function() {
       // check if we loaded all directories
       directoryLoadCount++;
       if (directoryLoadCount == Object.keys(config.directories).length) {
+        // hide loading animation
+        document.getElementById("loader").setAttribute("style", "display:none;");
         callback();
       }
     };

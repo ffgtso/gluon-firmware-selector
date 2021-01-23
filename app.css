@@ -335,16 +335,15 @@ h1, h2, h3, h4, h5, h6 {
   margin: auto 0.5em;
 }
 
-# Spinner ...
-# https://www.w3schools.com/howto/howto_css_loader.asp
+
 .loader {
-  border: 16px solid #f3f3f3;
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
   border-radius: 50%;
-  border-top: 16px solid #3498db;
   width: 120px;
   height: 120px;
-  -webkit-animation: spin 2s linear infinite; /* Safari */
   animation: spin 2s linear infinite;
+  margin: 0 auto;
 }
 
 /* Safari */
