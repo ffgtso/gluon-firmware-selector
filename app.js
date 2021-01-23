@@ -300,6 +300,7 @@ var firmwarewizard = function() {
       setFilteredImages();
       updateHTML(wizard);
       show_block('.manualSelection');
+      hide('.loader');
       updateFirmwareTable();
     });
 
@@ -1257,7 +1258,6 @@ var firmwarewizard = function() {
       // retrieve the contents of the directory
       loadSite(indexPath, parseSite);
     }
-    document.getElementById("loader").style.display = "none";
   }
 
   return app;
