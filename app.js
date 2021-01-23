@@ -401,12 +401,12 @@ var firmwarewizard = function() {
     }
   }
 
-  function parseFilePath(match, basePath, filename, branch) {
+  function parseFilePath(imageName, basePath, filename, branch) {
     var location = basePath + encodeURIComponent(filename);
 
-    var devices = vendormodels_reverse[match];
+    var devices = vendormodels_reverse[imageName];
     if (!(devices instanceof Array) || devices.length != 1) {
-      console.log("Error: vendormodels_reverse did not contain", match);
+      console.log("Error: vendormodels_reverse did not contain", imageName);
       return;
     }
     var device = devices[0];
@@ -421,7 +421,7 @@ var firmwarewizard = function() {
     var version = findVersion(strippedFilename);
     strippedFilename = strippedFilename.replace(version, '');
 
-    strippedFilename = strippedFilename.replace(match, '');
+    strippedFilename = strippedFilename.replace(imageName, '');
 
     var revision = device.revision || findRevision(strippedFilename);
     strippedFilename = strippedFilename.replace(revision, '');
@@ -443,7 +443,7 @@ var firmwarewizard = function() {
     strippedFilename = strippedFilename.replace(reRemoveDashes, '');
 
     if (strippedFilename !== '') {
-      console.log("Match for file", filename, "was not exhaustive. Missing filename parts:", strippedFilename);
+      console.error("ImageName for file '" + filename + "' and filename '" + filename + "' was not exhaustive. Missing filename parts: '" + strippedFilename + "'");
       return;
     }
 
@@ -1168,10 +1168,13 @@ var firmwarewizard = function() {
       if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         callback(xmlhttp.responseText, url);
       } else if (xmlhttp.readyState == 4) {
-        console.log("Could not load " + url);
+        console.error("Could not load " + url);
         callback(null, url);
       }
     };
+    xmlhttp.onerror = function(e){
+      console.error("Could not load " + url + ", error: " + e.type);
+    }
     xmlhttp.open('GET', url, true);
     xmlhttp.send();
   }
@@ -1179,10 +1182,13 @@ var firmwarewizard = function() {
   // parse the contents of the given directories
   function loadDirectories(callback) {
     var parseSite = function(data, indexPath) {
+      if (data==null) return;
+
       var basePath = indexPath.substring(0, indexPath.lastIndexOf('/') + 1);
       var branch = config.directories[indexPath];
       reLink.lastIndex = 0;
 
+      var imageNamesWithLatestVersion=[];
       var hrefMatch;
       do {
         hrefMatch = reLink.exec(data);
@@ -1193,12 +1199,32 @@ var firmwarewizard = function() {
           }
           var match = reMatch.exec(href);
           if (match) {
-            parseFilePath(match[1], basePath, href, branch);
+            // remember the last firmware version for the imageName
+            var fileHref = hrefMatch[1].substring(hrefMatch[1].lastIndexOf('/')+1);
+            var version = findVersion(fileHref);
+            var revision = findRevision(fileHref);
+            var imageNameSet = false;
+            for (let i = 0; i < imageNamesWithLatestVersion.length; i++) {
+              const element = imageNamesWithLatestVersion[i];
+              if (element.ImageName == match[1] && element.Revision == revision) {
+                imageNameSet = true;
+                if (element.Version < version) {
+                  element.Version = version;
+                }
+              }              
+            }
+            if (!imageNameSet) {
+              imageNamesWithLatestVersion.push({ImageName:match[1], Revision:revision, Version:version, Filename:href});
+            }
           } else if (config.listMissingImages) {
             console.log("No rule for firmware image:", href);
           }
         }
       } while (hrefMatch);
+
+      imageNamesWithLatestVersion.forEach(imageNameWithLatestVersion => {
+        parseFilePath(imageNameWithLatestVersion.ImageName, basePath, imageNameWithLatestVersion.Filename, branch);        
+      });
 
       // check if we loaded all directories
       directoryLoadCount++;
