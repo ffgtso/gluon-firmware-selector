@@ -89,7 +89,8 @@ var firmwarewizard = function() {
   // constants
   var IGNORED_ELEMENTS = [
     './', '../', '.manifest',
-    '-tftp', '-fat', '-loader', '-NA', '-x2-', '-hsv2', '-p1020'
+    '-tftp', '-fat', '-loader', '-NA', '-x2-', '-hsv2', '-p1020',
+    'gluon-ffgt-'
   ];
   var PANE = {'MODEL': 0, 'IMAGETYPE': 1, 'BRANCH': 2};
 
@@ -402,12 +403,13 @@ var firmwarewizard = function() {
     }
   }
 
-  function parseFilePath(imageName, basePath, filename, branch) {
-    var location = basePath + encodeURIComponent(filename);
+  // function parseFilePath(imageName, basePath, filename, branch) {
+  function parseFilePath(imageData, basePath) {
+    var location = basePath + encodeURIComponent(imageData.Filename);
 
-    var devices = vendormodels_reverse[imageName];
+    var devices = vendormodels_reverse[imageData.ImageName];
     if (!(devices instanceof Array) || devices.length != 1) {
-      console.log("Error: vendormodels_reverse did not contain", imageName);
+      console.log("Error: vendormodels_reverse did not contain", imageData.ImageName);
       return;
     }
     var device = devices[0];
@@ -416,17 +418,15 @@ var firmwarewizard = function() {
       return;
     }
 
-    var strippedFilename = filename;
-    config.community_prefix.forEach(communityPrefix => {
-      strippedFilename = strippedFilename.replace(communityPrefix, '-');  
-    });    
+    var strippedFilename = imageData.Filename;
+    strippedFilename = strippedFilename.replace(config.community_prefix, '-');
 
-    var version = findVersion(strippedFilename);
-    strippedFilename = strippedFilename.replace(version, '');
+    // var version = findVersion(strippedFilename);
+    strippedFilename = strippedFilename.replace(imageData.Version, '');
 
-    strippedFilename = strippedFilename.replace(imageName, '');
+    strippedFilename = strippedFilename.replace(imageData.ImageName, '');
 
-    var revision = device.revision || findRevision(strippedFilename);
+    var revision = device.revision || imageData.Revision;
     strippedFilename = strippedFilename.replace(revision, '');
 
     var region = findRegion(strippedFilename);
@@ -446,17 +446,15 @@ var firmwarewizard = function() {
     strippedFilename = strippedFilename.replace(reRemoveDashes, '');
 
     if (strippedFilename !== '') {
-      console.error("ImageName for file '" + filename + "' and filename '" + filename + "' was not exhaustive. Missing filename parts: '" + strippedFilename + "'");
+      console.log("ImageName for image '" + imageData.ImageName + "' and filename '" + imageData.Filename + "' was not exhaustive. Missing filename parts: '" + strippedFilename + "'");
       return;
     }
 
     // derive preview file name
-    var preview = filename;
-    config.community_prefix.forEach(communityPrefix => {
-      preview = strippedFilename.replace(communityPrefix, '-');  
-    });
-    preview = preview.replace(version, '');
-    preview = preview.replace(revision, '');
+    var preview = imageData.Filename;
+    preview = preview.replace(config.community_prefix, '-');
+    preview = preview.replace(imageData.Version, '');
+    preview = preview.replace(imageData.Revision, '');
     preview = preview.replace(region, '');
     preview = preview.replace(size, '');
     preview = preview.replace(type, '');
@@ -494,7 +492,7 @@ var firmwarewizard = function() {
     preview = preview.replace('x86-legacy', 'x86-legacy.img');
 
     // collect branch versions
-    app.currentVersions[branch] = version;
+    app.currentVersions[imageData.Branch] = imageData.Version;
 
     if (!(device.vendor in availableImages)) {
       availableImages[device.vendor] = {};
@@ -502,9 +500,9 @@ var firmwarewizard = function() {
 
     addArray(availableImages[device.vendor], device.model, {
       'revision': revision,
-      'branch': branch,
+      'branch': imageData.Branch,
       'type': type,
-      'version': version,
+      'version': imageData.Version,
       'location': location,
       'size': size,
       'preview': preview+".jpg",
@@ -1000,7 +998,7 @@ var firmwarewizard = function() {
           $('#branchdescs').appendChild(li);
           verbyrev[tmprevisions]=rev.branch;
           tmprevisions+=1;
-          console.log("Noting branch", rev.branch, "as idx", tmprevisions);
+          console.log("Noting branch" + rev.branch + "as idx" + tmprevisions);
          }
         }
 
@@ -1213,8 +1211,9 @@ var firmwarewizard = function() {
               const element = imageNamesWithLatestVersion[i];
               if (element.ImageName == match[1] && element.Revision == revision && element.Branch == branch) {
                 imageNameSet = true;
-                if (element.Version < version) {
+                if (compareVersions(element.Version, version) === false) {
                   element.Version = version;
+                  element.Filename = href;
                   break;
                 }
               }              
@@ -1229,14 +1228,14 @@ var firmwarewizard = function() {
       } while (hrefMatch);
 
       imageNamesWithLatestVersion.forEach(imageNameWithLatestVersion => {
-        parseFilePath(imageNameWithLatestVersion.ImageName, basePath, imageNameWithLatestVersion.Filename, branch);        
+        parseFilePath(imageNameWithLatestVersion, basePath);        
       });
 
       // check if we loaded all directories
       directoryLoadCount++;
       if (directoryLoadCount == Object.keys(config.directories).length) {
         // hide loading animation
-        document.getElementById("loader").setAttribute("style", "display:none;");
+        hide('#loader');
         callback();
       }
     };
@@ -1264,6 +1263,25 @@ var firmwarewizard = function() {
     for (var indexPath in config.directories) {
       // retrieve the contents of the directory
       loadSite(indexPath, parseSite);
+    }
+  }
+
+  // returns true if v1 is higher, false if v2 is higher, null if comparison is not possible
+  function compareVersions(v1, v2) {
+    if (v1.indexOf('~') != -1 && v2.indexOf('~') != -1) {
+      let left = v1.split('~');
+      let right = v2.split('~');
+
+      // major version
+      if (left[0] > right[0]) return true;
+      if (left[0] < right[0]) return false;
+      
+      // revision
+      if (Number(left[1]) > Number(right[1])) return true;
+      return false;
+    } else {
+      // not a valid version string
+      return null;
     }
   }
 
